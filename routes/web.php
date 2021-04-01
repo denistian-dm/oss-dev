@@ -27,3 +27,9 @@ Route::get('/', function () {
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->name('dashboard');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('data/users', function () {
+        return Inertia::render('CPanel/Data/User/Index');
+    });
+});

@@ -18,6 +18,27 @@
             </div>
 
             <div class="mt-4">
+                <jet-label for="username" value="Username" />
+                <jet-input id="username" type="text" class="mt-1 block w-full" v-model="form.username" required />
+            </div>
+
+            <div class="mt-4">
+                <jet-label for="division" value="Division" />
+                <select id="division" class="w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1" v-model="form.division">
+                    <option value="" class="text-gray-400">-- Select Division --</option>
+                    <option v-for="div in dataDivision.data" :key="div.id" :value="div.id">{{ div.name }}</option>
+                </select>
+            </div>
+
+            <div class="mt-4">
+                <jet-label for="level" value="Level" />
+                <select id="level" class="w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1" v-model="form.level">
+                    <option value="" class="text-gray-400">-- Select Level --</option>
+                    <option v-for="level in dataLevel.data" :key="level.id" :value="level.id">{{ level.name }}</option>
+                </select>
+            </div>
+
+            <div class="mt-4">
                 <jet-label for="password" value="Password" />
                 <jet-input id="password" type="password" class="mt-1 block w-full" v-model="form.password" required autocomplete="new-password" />
             </div>
@@ -60,6 +81,7 @@
     import JetCheckbox from "@/Jetstream/Checkbox";
     import JetLabel from '@/Jetstream/Label'
     import JetValidationErrors from '@/Jetstream/ValidationErrors'
+    import axios from 'axios'
 
     export default {
         components: {
@@ -79,8 +101,13 @@
                     email: '',
                     password: '',
                     password_confirmation: '',
+                    username: '',
+                    division: '',
+                    level: '',
                     terms: false,
-                })
+                }),
+                dataDivision: [],
+                dataLevel: [],
             }
         },
 
@@ -90,6 +117,16 @@
                     onFinish: () => this.form.reset('password', 'password_confirmation'),
                 })
             }
+        },
+
+        created() {
+            axios.get('http://localhost:8000/api/division')
+                .then(result => this.dataDivision = result.data)
+                .catch( err => console.log(err))
+
+            axios.get('http://localhost:8000/api/level')
+                .then(result => this.dataLevel = result.data)
+                .catch( err => console.log(err))
         }
     }
 </script>

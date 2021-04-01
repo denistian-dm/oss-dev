@@ -20,6 +20,29 @@
                                 <jet-nav-link :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </jet-nav-link>
+                                
+                                <div class="ml-3 inline-flex items-center">
+                                    <jet-dropdown align="left">
+                                        <template #trigger>
+                                            <span class="inline-flex rounded-md">
+                                                <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
+                                                    Data
+                                                </button>
+                                            </span>
+                                        </template>
+
+                                        <template #content>
+                                            <div>
+                                                <jet-dropdown-link :href="'/data/users'">Data User</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'#'">Data Member</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'#'">Data Juklak</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'#'">Data Section</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'#'">Data Client</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'#'">Data Category</jet-dropdown-link>
+                                            </div>
+                                        </template>
+                                    </jet-dropdown>
+                                </div>
                             </div>
                         </div>
 
