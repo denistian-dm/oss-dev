@@ -32,4 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('data/users', function () {
         return Inertia::render('CPanel/Data/User/Index');
     });
+
+    Route::get('data/members', function () {
+        return Inertia::render('CPanel/Data/Member/Index');
+    });
 });

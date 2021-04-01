@@ -34,7 +34,7 @@
                                         <template #content>
                                             <div>
                                                 <jet-dropdown-link :href="'/data/users'">Data User</jet-dropdown-link>
-                                                <jet-dropdown-link :href="'#'">Data Member</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'/data/members'">Data Member</jet-dropdown-link>
                                                 <jet-dropdown-link :href="'#'">Data Juklak</jet-dropdown-link>
                                                 <jet-dropdown-link :href="'#'">Data Section</jet-dropdown-link>
                                                 <jet-dropdown-link :href="'#'">Data Client</jet-dropdown-link>
