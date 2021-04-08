@@ -31,9 +31,23 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('data/users', function () {
         return Inertia::render('CPanel/Data/User/Index');
-    });
+    })->name('data.users');
 
     Route::get('data/members', function () {
         return Inertia::render('CPanel/Data/Member/Index');
+    })->name('data.members');
+
+    Route::get('data/juklak', function () {
+        return Inertia::render('CPanel/Data/Juklak/Index');
+    })->name('data.juklak');
+
+    Route::get('data/juklak/create', function () {
+        return Inertia::render('CPanel/Data/Juklak/Form');
+    });
+
+    Route::get('data/juklak/{id}/edit', function ($id) {
+        return Inertia::render('CPanel/Data/Juklak/Form', [
+            'id' => $id
+        ]);
     });
 });

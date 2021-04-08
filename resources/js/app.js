@@ -11,6 +11,7 @@ import { VTooltip, VPopover, VClosePopover } from 'v-tooltip';
 
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import CKEditor from '@ckeditor/ckeditor5-vue';
 
 const el = document.getElementById('app');
 
@@ -24,6 +25,7 @@ createApp({
     .mixin({ methods: { route } })
     .use(InertiaPlugin, VueAxios, axios)
     .use(VueSweetalert2)
+    .use(CKEditor)
     .directive('tooltip', VTooltip)
     .directive('close-popover', VClosePopover)
     .component('v-popover', VPopover)

@@ -35,10 +35,7 @@
                                             <div>
                                                 <jet-dropdown-link :href="'/data/users'">Data User</jet-dropdown-link>
                                                 <jet-dropdown-link :href="'/data/members'">Data Member</jet-dropdown-link>
-                                                <jet-dropdown-link :href="'#'">Data Juklak</jet-dropdown-link>
-                                                <jet-dropdown-link :href="'#'">Data Section</jet-dropdown-link>
-                                                <jet-dropdown-link :href="'#'">Data Client</jet-dropdown-link>
-                                                <jet-dropdown-link :href="'#'">Data Category</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'/data/juklak'">Data Juklak</jet-dropdown-link>
                                             </div>
                                         </template>
                                     </jet-dropdown>
@@ -196,6 +193,25 @@
                                     Log Out
                                 </jet-responsive-nav-link>
                             </form>
+
+                            <div class="border-t border-gray-200"></div>
+
+                            <div class="block px-4 py-2 text-xs text-gray-400">
+                                Data
+                            </div>
+
+                            <jet-responsive-nav-link :href="route('data.users')" :active="route().current('data.users')">
+                                Data Users
+                            </jet-responsive-nav-link>
+
+                            <jet-responsive-nav-link :href="route('data.members')" :active="route().current('data.members')">
+                                Data Members
+                            </jet-responsive-nav-link>
+
+                            <jet-responsive-nav-link :href="route('data.juklak')" :active="route().current('data.juklak')">
+                                Data Juklak
+                            </jet-responsive-nav-link>
+
 
                             <!-- Team Management -->
                             <template v-if="$page.props.jetstream.hasTeamFeatures">

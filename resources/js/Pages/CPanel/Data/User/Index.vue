@@ -85,7 +85,7 @@
                     </template>
                 </jet-dialog-modal>
 
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="bg-white overflow-auto shadow-xl sm:rounded-lg">
                     <table class="overflow-x-auto w-full bg-white">
                         <thead class="bg-blue-100 border-b border-gray-300">
                             <tr>
