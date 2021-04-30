@@ -24,4 +24,9 @@ class Juklak extends Model
     {
         return $this->belongsTo('App\Models\JuklakCategory');
     }
+
+    public function cases()
+    {
+        return $this->hasMany('App\Models\_Case');
+    }
 }

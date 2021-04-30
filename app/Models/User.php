@@ -76,4 +76,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo('App\Models\Division');
     }
+
+    public function cases()
+    {
+        return $this->hasMany('App\Models\_Case');
+    }
+
+    public function case_details()
+    {
+        return $this->hasMany('App\Models\CaseDetail');
+    }
 }

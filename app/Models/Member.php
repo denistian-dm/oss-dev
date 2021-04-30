@@ -20,8 +20,22 @@ class Member extends Model
         'client_id'
     ];
 
+    protected $appends = [
+        'suggestion'
+    ];
+
+    public function getSuggestionAttribute()
+    {
+        return $this->name .' ['. $this->id_member .']';
+    }
+
     public function client()
     {
         return $this->belongsTo('App\Models\Client');
+    }
+
+    public function cases()
+    {
+        return $this->hasMany('App\Models\_Case');
     }
 }

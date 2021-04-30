@@ -50,4 +50,18 @@ Route::middleware('auth:sanctum')->group(function () {
             'id' => $id
         ]);
     });
+
+    Route::get('case/create', function () {
+        return Inertia::render('CPanel/Case/Create');
+    });
+
+    Route::get('case', function () {
+        return Inertia::render('CPanel/Case/Index');
+    });
+
+    Route::get('case/{id}', function ($id) {
+        return Inertia::render('CPanel/Case/Show', [
+            'id' => $id
+        ]);
+    });
 });

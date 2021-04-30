@@ -23,6 +23,18 @@ class JuklakController extends Controller
         ], 200);
     }
 
+    public function findByCategory($category_id)
+    {
+        $juklaks = Juklak::with('juklak_category:id,name')
+                        ->where('juklak_category_id', $category_id)
+                        ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $juklaks
+        ], 200);
+    }
+
     /**
      * Show the form for creating a new resource.
      *

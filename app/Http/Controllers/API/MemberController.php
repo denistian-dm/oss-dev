@@ -17,7 +17,7 @@ class MemberController extends Controller
      */
     public function index()
     {
-        $members = Member::with('client:id,name')
+        $members = Member::with('client:id,name,code')
                             ->get();
 
         return response()->json([
