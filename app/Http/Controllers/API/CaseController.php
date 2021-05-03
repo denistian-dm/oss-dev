@@ -34,6 +34,59 @@ class CaseController extends Controller
         ], 200);
     }
 
+    public function filter(Request $request)
+    {
+        $cases = new _Case;
+        
+        if ($request->dateStart != null || $request->dateEnd != null) {
+            Validator::make($request->all(), [
+                'dateStart' => ['required'],
+                'dateEnd' => ['required']
+            ])->validate();
+
+            $from = explode(' ', $request->dateStart);
+            $from = Carbon::createFromFormat('M d Y H:i:s', $from[1].' '.$from[2].' '.$from[3].' '.$from[4])->timezone($from[5]);
+
+            $to = explode(' ', $request->dateEnd);
+            $to = Carbon::createFromFormat('M d Y H:i:s', $to[1].' '.$to[2].' '.$to[3].' 23:59:59')->timezone($to[5]);
+            $cases = $cases->whereBetween('created_at', [$from, $to]);
+        }
+
+        if ($request->reference != null) {
+            $cases = $cases->where('reference', $request->reference);
+        }
+
+        if ($request->caseStatus != null) {
+            $cases = $cases->where('case_status_id', $request->caseStatus);
+        }
+
+        if ($request->client != null) {
+            $client = Member::all()->where('client_id', $request->client)->pluck('id');
+            $cases = $cases->whereIn('member_id', $client);
+        }
+
+        if ($request->caseCategory != null) {
+            $cases = $cases->where('category_id', $request->caseCategory);
+        }
+
+        if ($request->juklakCategory != null) {
+            if ($request->juklak != null) {
+                $cases = $cases->where('juklak_id', $request->juklak);
+            } else {
+                $juklak = Juklak::all()->where('juklak_category_id', $request->juklakCategory)->pluck('id');
+                $cases = $cases->whereIn('juklak_id', $juklak);
+            }
+        }
+
+        $cases = $cases->with('member:id,name,id_member')->with('user:id,name')->with('juklak:id,name')->with('category:id,name')->with('case_status:id,name');
+        $cases = $cases->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $cases
+        ], 200);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
