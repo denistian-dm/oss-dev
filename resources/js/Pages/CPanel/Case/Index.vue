@@ -84,7 +84,13 @@
 
                 <!-- datatables -->
                 <div class="bg-white overflow-auto shadow-xl sm:rounded-lg">
-                    <data-table :value="dataCase.data">
+                    <data-table :value="dataCase.data" :paginator="true" :rows="50" ref="dt">
+                        <template #header>
+                            <div style="text-align: left">
+                                <jet-button icon="pi pi-external-link" label="Export" @click="downloadAsExcel()">Export Excel</jet-button>
+                            </div>
+                        </template>
+
                         <column header="No" class="whitespace-nowrap">
                             <template #body="slotProps">
                                 {{slotProps.index + 1}}
@@ -176,6 +182,8 @@
     import Card from 'primevue/card'
     import ProgressSpinner from 'primevue/progressspinner'
     import Calendar from 'primevue/calendar'
+    import XLSX from 'xlsx'
+    import { saveAs } from 'file-saver'
 
     export default {
         data() {
@@ -271,6 +279,46 @@
                             .then(result => this.dataCase = result.data)
                             .catch(err => this.filter.errors = err.response.data.errors)
                     }).catch(err => console.log(err))
+            },
+
+            exportCSV() {
+                this.$refs.dt.exportCSV();
+            },
+
+            downloadAsExcel() {
+                let data = [];
+
+                for (let index = 0; index < this.dataCase.data.length; index++) {
+                    const element = {
+                        "No": index+1,
+                        "Reference": this.dataCase.data[index].reference,
+                        "ID Member": this.dataCase.data[index].member.id_member,
+                        "CS": this.dataCase.data[index].user.name,
+                        "Case": this.dataCase.data[index].juklak.name,
+                        "Kategori": this.dataCase.data[index].category.name,
+                        "Status": this.dataCase.data[index].case_status.name
+                    };
+
+                    data.push(element);
+                }
+
+                let worksheet = XLSX.utils.json_to_sheet(data);
+
+                let workbook = {
+                    Sheets: { 'data': worksheet},
+                    SheetNames: ['data']
+                }
+
+                let excelBuffer = XLSX.write(workbook, {bookType: 'xlsx', type: 'array'});
+                this.saveAsExcel(excelBuffer, 'oss_report');
+            },
+
+            saveAsExcel(buffer, filename) {
+                const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+                const EXCEL_EXTENSION = '.xlsx';
+
+                let data = new Blob([buffer], {type: EXCEL_TYPE});
+                saveAs(data, filename+EXCEL_EXTENSION);
             }
         },
 
