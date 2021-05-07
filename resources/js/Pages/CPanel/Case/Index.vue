@@ -11,7 +11,7 @@
                 <!-- filter panel -->
                 <div class="px-8 pb-8 pt-6 bg-white overflow-auto shadow sm:rounded-lg mb-8">
                     <span>Pencarian</span>
-                    <div class="mt-2 grid grid-cols-6 gap-4">
+                    <div class="mt-2 grid grid-cols-2 sm:grid-cols-6 gap-4">
                         <div class="col-span-2">
                             <div class="flex">
                                 <calendar 
@@ -40,7 +40,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-2 grid grid-cols-6 gap-4">
+                    <div class="mt-2 grid grid-cols-2 sm:grid-cols-6 gap-4">
                         <div>
                             <select id="case_status" class="w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1" v-model="filter.caseStatus">
                                 <option value="" class="text-gray-400">-- Select Status --</option>
@@ -109,9 +109,15 @@
                         <column field="user.name" header="CS" class="whitespace-nowrap"></column>
                         <column field="juklak.name" header="Case" class="whitespace-nowrap"></column>
                         <column field="category.name" header="Kategori" class="whitespace-nowrap"></column>
-                        <column header="Status" class="whitespace-nowrap">
+                        <column class="whitespace-nowrap">
+                            <template #header>
+                                <div class="flex justify-center">Status</div>
+                            </template>
+
                             <template #body="slotProps">
-                                <pills :theme="slotProps.data.case_status.id">{{ slotProps.data.case_status.name }}</pills>
+                                <div class="flex justify-center">
+                                    <pills :theme="slotProps.data.case_status.id">{{ slotProps.data.case_status.name }}</pills>
+                                </div>
                             </template>
                         </column>
                         <column header="Action" class="whitespace-nowrap">
@@ -186,6 +192,8 @@
     import { saveAs } from 'file-saver'
 
     export default {
+        props: ['juklak_category', 'juklak', 'status', 'dateStart', 'dateEnd'],
+
         data() {
             return {
                 loadCompleted: false,
@@ -319,15 +327,29 @@
 
                 let data = new Blob([buffer], {type: EXCEL_TYPE});
                 saveAs(data, filename+EXCEL_EXTENSION);
+            },
+
+            gettingFromStatistik() {
+                this.filter.juklakCategory = this.juklak_category != null ? this.juklak_category : '';
+                this.filter.juklak = this.juklak != null ? this.juklak : '';
+                this.filter.caseStatus = this.status != null ? this.status : '';
+                this.filter.dateStart = this.dateStart != null ? new Date(this.dateStart) : '';
+                this.filter.dateEnd = this.dateEnd != null ? new Date(this.dateEnd) : '';
+
+                this.filterCase(this.filter);
             }
         },
 
         created() {
             axios.get('http://localhost:8000/sanctum/csrf-cookie')
                 .then(response => {
-                    axios.get('http://localhost:8000/api/data/case')
-                        .then(result => this.dataCase = result.data)
-                        .catch(err => console.log(err))
+                    if (this.juklak_category) {
+                        this.gettingFromStatistik();
+                    } else {
+                        axios.get('http://localhost:8000/api/data/case')
+                            .then(result => this.dataCase = result.data)
+                            .catch(err => console.log(err))
+                    }
 
                     axios.get('http://localhost:8000/api/data/case-status')
                         .then(result => this.filter.dataCaseStatus = result.data)
@@ -344,7 +366,7 @@
                     axios.get('http://localhost:8000/api/juklak-category')
                         .then(result => this.filter.dataJuklakCategory = result.data)
                         .catch(err => console.log(err))
-                }).catch(err => console.log(err))
+                }).catch(err => console.log(err));
         }
     }
 </script>

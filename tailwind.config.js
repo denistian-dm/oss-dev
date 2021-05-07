@@ -20,6 +20,8 @@ module.exports = {
     variants: {
         extend: {
             opacity: ['disabled'],
+            padding: ['first', 'last'],
+            borderWidth: ['last']
         },
     },
 

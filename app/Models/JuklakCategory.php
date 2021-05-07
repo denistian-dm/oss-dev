@@ -17,4 +17,9 @@ class JuklakCategory extends Model
     {
         return $this->hasMany('App\Models\Juklak');
     }
+
+    public function cases()
+    {
+        return $this->hasManyThrough(_Case::class, Juklak::class);
+    }
 }

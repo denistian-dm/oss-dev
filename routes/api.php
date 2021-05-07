@@ -41,7 +41,9 @@ Route::middleware('auth:sanctum')->prefix('data')->group(function () {
     Route::resource('/juklak', JuklakController::class);
     Route::get('/juklak/search-by-category/{category_id}', [JuklakController::class, 'findByCategory']);
     Route::resource('/case', CaseController::class);
+    Route::get('/case-statistik', [CaseController::class, 'statistik']);
     Route::post('/case/filter', [CaseController::class, 'filter']);
+    Route::post('/case-statistik/filter', [CaseController::class, 'filter_statistik']);
     Route::resource('/case-details', CaseDetailController::class);
     Route::get('case-details/{id}/show-by-id-case', [CaseDetailController::class, 'showByIdCase']);
     Route::resource('/case-status', CaseStatusController::class);

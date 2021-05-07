@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -53,15 +54,29 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('case/create', function () {
         return Inertia::render('CPanel/Case/Create');
-    });
+    })->name('case.new');
 
-    Route::get('case', function () {
-        return Inertia::render('CPanel/Case/Index');
-    });
+    Route::get('case', function (Request $request) {
+        if (isset($request->data['juklak_category'])) {
+            return Inertia::render('CPanel/Case/Index', [
+                'juklak_category' => $request->data['juklak_category'],
+                'juklak' => $request->data['juklak'],
+                'status' => $request->data['status'],
+                'dateStart' => $request->data['dateStart'],
+                'dateEnd' => $request->data['dateEnd'],
+            ]);
+        } else {
+            return Inertia::render('CPanel/Case/Index');
+        }
+    })->name('data.case');
 
     Route::get('case/{id}', function ($id) {
         return Inertia::render('CPanel/Case/Show', [
             'id' => $id
         ]);
     });
+
+    Route::get('statistik/case', function () {
+        return Inertia::render('CPanel/Statistik/Index');
+    })->name('statistik-case');
 });

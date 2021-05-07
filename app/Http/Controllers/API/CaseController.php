@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\_Case;
 use App\Models\CaseDetail;
 use App\Models\Juklak;
+use App\Models\JuklakCategory;
 use App\Models\Member;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CaseController extends Controller
 {
@@ -84,6 +86,77 @@ class CaseController extends Controller
         return response()->json([
             'success' => true,
             'data' => $cases
+        ], 200);
+    }
+
+    public function statistik()
+    {   
+        $jukcat = JuklakCategory::select('id', 'name')->withCount('cases')->orderBy('cases_count', 'desc')->take(5)->get();
+
+        $topCases = _Case::with('juklak:id,name,juklak_category_id')
+                        ->groupBy('juklak_id')
+                        ->select('juklak_id', DB::raw('count(*) as total'))
+                        ->orderBy('total', 'desc')
+                        ->take(5)
+                        ->get();
+
+        $ppi     = _Case::with('juklak:id,name,juklak_category_id')
+                        ->where('case_status_id', 4)
+                        ->groupBy('juklak_id')
+                        ->select('juklak_id', DB::raw('count(*) as total'))
+                        ->orderBy('total', 'desc')
+                        ->take(5)
+                        ->get();
+
+        return response()->json([
+            'success' => true,
+            'top_categories' => $jukcat,
+            'top_cases' => $topCases,
+            'ppi' => $ppi
+        ], 200);
+    }
+
+    public function filter_statistik (Request $request) {
+        Validator::make($request->all(), [
+            'dateStart' => ['required'],
+            'dateEnd' => ['required']
+        ])->validate();
+
+        $from = explode(' ', $request->dateStart);
+        $from = Carbon::createFromFormat('M d Y H:i:s', $from[1].' '.$from[2].' '.$from[3].' '.$from[4])->timezone($from[5]);
+
+        $to = explode(' ', $request->dateEnd);
+        $to = Carbon::createFromFormat('M d Y H:i:s', $to[1].' '.$to[2].' '.$to[3].' 23:59:59')->timezone($to[5]);
+
+        $jukcat = JuklakCategory::select('id', 'name')
+                        ->withCount(['cases' => function ($query) use($from, $to) {
+                            $query->whereBetween('cases.created_at', [$from, $to]);
+                        }])->orderBy('cases_count', 'desc')
+                        ->take(5)
+                        ->get();
+
+        $topCases = _Case::with('juklak:id,name,juklak_category_id')
+                        ->groupBy('juklak_id')
+                        ->select('juklak_id', DB::raw('count(*) as total'))
+                        ->whereBetween('created_at', [$from, $to])
+                        ->orderBy('total', 'desc')
+                        ->take(5)
+                        ->get();
+
+        $ppi     = _Case::with('juklak:id,name,juklak_category_id')
+                        ->where('case_status_id', 4)
+                        ->groupBy('juklak_id')
+                        ->select('juklak_id', DB::raw('count(*) as total'))
+                        ->whereBetween('created_at', [$from, $to])
+                        ->orderBy('total', 'desc')
+                        ->take(5)
+                        ->get();
+
+        return response()->json([
+            'success' => true,
+            'top_categories' => $jukcat,
+            'top_cases' => $topCases,
+            'ppi' => $ppi
         ], 200);
     }
 

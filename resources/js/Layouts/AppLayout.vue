@@ -59,6 +59,10 @@
                                         </template>
                                     </jet-dropdown>
                                 </div>
+
+                                <jet-nav-link :href="route('statistik-case')" :active="route().current('statistik-case')">
+                                    Statistik
+                                </jet-nav-link>
                             </div>
                         </div>
 
@@ -182,6 +186,10 @@
                         <jet-responsive-nav-link :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </jet-responsive-nav-link>
+
+                        <jet-responsive-nav-link :href="route('statistik-case')" :active="route().current('statistik-case')">
+                            Statistik
+                        </jet-responsive-nav-link>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -212,6 +220,20 @@
                                     Log Out
                                 </jet-responsive-nav-link>
                             </form>
+
+                            <div class="border-t border-gray-200"></div>
+
+                            <div class="block px-4 py-2 text-xs text-gray-400">
+                                Case
+                            </div>
+
+                            <jet-responsive-nav-link :href="route('case.new')" :active="route().current('case.new')">
+                                Buat Laporan Case Baru
+                            </jet-responsive-nav-link>
+
+                            <jet-responsive-nav-link :href="route('data.case')" :active="route().current('data.case')">
+                                Data Case
+                            </jet-responsive-nav-link>
 
                             <div class="border-t border-gray-200"></div>
 
