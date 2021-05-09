@@ -44,6 +44,7 @@ Route::middleware('auth:sanctum')->prefix('data')->group(function () {
     Route::get('/case-statistik', [CaseController::class, 'statistik']);
     Route::post('/case/filter', [CaseController::class, 'filter']);
     Route::post('/case-statistik/filter', [CaseController::class, 'filter_statistik']);
+    Route::post('/case-statistik/chart', [CaseController::class, 'chart']);
     Route::resource('/case-details', CaseDetailController::class);
     Route::get('case-details/{id}/show-by-id-case', [CaseDetailController::class, 'showByIdCase']);
     Route::resource('/case-status', CaseStatusController::class);

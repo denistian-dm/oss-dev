@@ -18,6 +18,7 @@
                                     placeholder="Tanggal Awal"
                                     v-model="filter.dateStart" 
                                     dateFormat="yy-mm-dd"
+                                    :maxDate="filter.dateEnd"
                                     :input-class="'focus:ring-indigo-200 focus:border-indigo-300 flex-1 rounded-l-md block w-full sm:text-sm border-gray-300'" 
                                     :input-style="'border-radius: 0.375rem 0px 0px 0.375rem;'"/>
                                 <span 
@@ -28,6 +29,7 @@
                                     placeholder="Tanggal Akhir"
                                     v-model="filter.dateEnd" 
                                     dateFormat="yy-mm-dd"
+                                    :minDate="filter.dateStart"
                                     :input-class="'focus:ring-indigo-200 focus:border-indigo-300 flex-1 rounded-l-md block w-full sm:text-sm border-gray-300'" 
                                     :input-style="'border-radius: 0rem 0.375rem 0.375rem 0rem;'"/>
                             </div>

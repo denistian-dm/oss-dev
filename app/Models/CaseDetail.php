@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use carbon\Carbon;
 
 class CaseDetail extends Model
 {
@@ -18,9 +19,15 @@ class CaseDetail extends Model
         'case_status_id'
     ];
 
-    protected $casts = [
-        'created_at' => 'datetime:Y-m-d H:i',
-    ];
+    // protected $casts = [
+    //     'created_at' => 'datetime:Y-m-d H:i',
+    // ];
+
+    public function getCreatedAtAttribute($value)
+    {
+        $date = Carbon::parse($value)->setTimezone(geoip()->getLocation('111.68.29.30')->timezone)->format('Y-m-d H:i');
+        return $date;
+    }
 
     public function user()
     {

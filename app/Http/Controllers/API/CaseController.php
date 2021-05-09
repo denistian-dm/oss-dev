@@ -47,10 +47,10 @@ class CaseController extends Controller
             ])->validate();
 
             $from = explode(' ', $request->dateStart);
-            $from = Carbon::createFromFormat('M d Y H:i:s', $from[1].' '.$from[2].' '.$from[3].' '.$from[4])->timezone($from[5]);
+            $from = Carbon::createFromFormat('M d Y', $from[1].' '.$from[2].' '.$from[3], $from[5])->startOfDay()->setTimezone('UTC');
 
             $to = explode(' ', $request->dateEnd);
-            $to = Carbon::createFromFormat('M d Y H:i:s', $to[1].' '.$to[2].' '.$to[3].' 23:59:59')->timezone($to[5]);
+            $to = Carbon::createFromFormat('M d Y', $to[1].' '.$to[2].' '.$to[3], $to[5])->endOfDay()->setTimezone('UTC');
             $cases = $cases->whereBetween('created_at', [$from, $to]);
         }
 
@@ -123,10 +123,10 @@ class CaseController extends Controller
         ])->validate();
 
         $from = explode(' ', $request->dateStart);
-        $from = Carbon::createFromFormat('M d Y H:i:s', $from[1].' '.$from[2].' '.$from[3].' '.$from[4])->timezone($from[5]);
+        $from = Carbon::createFromFormat('M d Y', $from[1].' '.$from[2].' '.$from[3], $from[5])->setTimezone('UTC');
 
         $to = explode(' ', $request->dateEnd);
-        $to = Carbon::createFromFormat('M d Y H:i:s', $to[1].' '.$to[2].' '.$to[3].' 23:59:59')->timezone($to[5]);
+        $to = Carbon::createFromFormat('M d Y', $to[1].' '.$to[2].' '.$to[3], $to[5])->endOfDay()->setTimezone('UTC');
 
         $jukcat = JuklakCategory::select('id', 'name')
                         ->withCount(['cases' => function ($query) use($from, $to) {
@@ -158,6 +158,160 @@ class CaseController extends Controller
             'top_cases' => $topCases,
             'ppi' => $ppi
         ], 200);
+    }
+
+    public function chart(Request $request) {
+        
+        $filterDate = $this->filteringDate($request->dateStart, $request->dateEnd);
+        $labels = $filterDate['labels'];
+        $range = $filterDate['range'];
+
+        $backgroundColor = [
+            '#FECACA',
+            '#FDE68A',
+            '#A7F3D0',
+            '#BFDBFE',
+            '#818CF8',
+            '#DDD6FE',
+            '#FBCFE8',
+            '#B45309',
+            '#047857'
+        ];
+
+        $jukcat = JuklakCategory::all();
+        $i = 0;
+
+        foreach ($jukcat as $jc) {
+            for ($index=0; $index < count($range); $index++) { 
+                $getData        = JuklakCategory::select('id', 'name')
+                                            ->withCount(['cases' => function ($query) use($range, $index) {
+                                                $query->whereBetween('cases.created_at', $range[$index]);
+                                            }])->where('id', $jc->id)->first();
+                $data[$index]   = $getData->cases_count;
+            }
+
+            $datasets[] = [
+                "type" => "bar",
+                "label" => $jc->name,
+                "backgroundColor" => $backgroundColor[$i],
+                "data" => $data
+            ];
+
+            $i++;
+        }
+
+        // $tempFrom = $from;
+        for ($i=0; $i < count($range); $i++) {
+            $getData = _Case::whereBetween('created_at', $range[$i])->get();
+            $lineData[] = $getData->count();
+            // $tempFrom->addDay(1);
+        }
+
+        return response()->json([
+            'periods' => $labels,
+            'datasets' => $datasets,
+            'line' => [
+                'labels' => $labels,
+                'datasets' => [
+                    'label' => 'Total',
+                    'data' => $lineData,
+                    'fill' => false,
+                    'borderColor' => $backgroundColor[0]
+                ]
+            ]
+        ], 200);
+    }
+
+    private function filteringDate($from, $to) {
+        $from = explode(' ', $from);
+        $from = Carbon::createFromFormat('M d Y', $from[1].' '.$from[2].' '.$from[3], $from[5])->startOfDay()->setTimezone('UTC');
+
+        $to = explode(' ', $to);
+        $to = Carbon::createFromFormat('M d Y', $to[1].' '.$to[2].' '.$to[3], $to[5])->endOfDay()->setTimezone('UTC');
+
+        $tz = geoip()->getLocation('111.68.29.30')->timezone;
+        $tempFrom = $from;
+        
+        $dayInterval    = $from->diffInDays($to);
+        $weekInterval   = $from->diffInWeeks($to);
+        $monthInterval  = $from->diffInMonths($to);
+        $yearInterval   = $from->diffInYears($to);
+
+        if ($yearInterval > 0) 
+        {
+            // get yeaerly datas
+            for ($i=0; $i <= $yearInterval; $i++) { 
+                $tempStart  = $tempFrom->format('Y-m-d H:i:s');
+
+                if ($tempFrom->diffInYears($to) > 0) 
+                { $tempEnd = $tempFrom->setTimezone($tz)->endOfYear()->setTimezone('UTC')->format('Y-m-d H:i:s'); } 
+                else
+                { $tempEnd = $to->format('Y-m-d H:i:s');}
+
+                $range[$i]  = [$tempStart, $tempEnd];
+                $labels[$i] = strtoupper(Carbon::parse($tempStart)->setTimezone($tz)->format('dM').'-'. Carbon::parse($tempEnd)->setTimezone($tz)->format('dM Y'));
+                $tempFrom = $tempFrom->addDay(1)->setTimezone($tz)->startOfDay()->setTimezone('UTC');
+            }
+        } 
+        else 
+        {
+            if ($monthInterval >= 2) 
+            {
+                // get monthly datas
+                for ($i=0; $i <= $monthInterval; $i++) { 
+                    $tempStart  = $tempFrom->format('Y-m-d H:i:s');
+
+                    if ($tempFrom->diffInMonths($to) > 0) 
+                    { $tempEnd = $tempFrom->setTimezone($tz)->endOfMonth()->setTimezone('UTC')->format('Y-m-d H:i:s'); } 
+                    else 
+                    { $tempEnd = $to->format('Y-m-d H:i:s'); }
+
+                    $range[$i]  = [$tempStart, $tempEnd];
+                    $labels[$i] = strtoupper(Carbon::parse($tempStart)->setTimezone($tz)->format('d').'-'. Carbon::parse($tempEnd)->setTimezone($tz)->format('d M'));
+                    $tempFrom = $tempFrom->addDay(1)->setTimezone($tz)->startOfDay()->setTimezone('UTC');
+                }
+            } 
+            else 
+            {
+                if ($weekInterval >= 2) 
+                {
+                    // get weekly datas
+                    for ($i=0; $i <= $weekInterval+1; $i++) { 
+                        $tempStart  = $tempFrom->format('Y-m-d H:i:s');
+
+                        if ($tempFrom->diffInWeeks($to) > 0)
+                        { $tempEnd    = $tempFrom->setTimezone($tz)->endOfWeek()->setTimezone('UTC')->format('Y-m-d H:i:s');} 
+                        else 
+                        { $tempEnd    = $to->format('Y-m-d H:i:s'); }
+
+                        $range[$i]  = [$tempStart, $tempEnd];
+                        $labels[$i] = strtoupper(Carbon::parse($tempStart)->setTimezone($tz)->format('dM').' - '. Carbon::parse($tempEnd)->setTimezone($tz)->format('dM'));
+
+                        $tempFrom = $tempFrom->setTimezone($tz)->addDay(1)->startOfDay()->setTimezone('UTC');
+                    }
+                } 
+                else 
+                {
+                    // get daily datas
+                    for ($i=0; $i <= $dayInterval; $i++) {
+                        $labels[$i] = $tempFrom->setTimezone($tz)->format('d M y');
+                        $range[$i] = [
+                            $tempFrom->startOfDay()->setTimezone('UTC')->format('Y-m-d H:i:s'), 
+                            $tempFrom->setTimezone($tz)->endOfDay()->setTimezone('UTC')->format('Y-m-d H:i:s') 
+                        ];
+
+                        $tempFrom->setTimezone($tz)->addDay(1);
+                    }
+                }
+            }
+        }
+
+        $data = [
+            "labels" => $labels,
+            "range" => $range
+        ];
+
+        return $data;
     }
 
     /**

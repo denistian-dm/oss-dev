@@ -52,7 +52,7 @@
 
                                         <template #content>
                                             <div>
-                                                <jet-dropdown-link :href="'/data/users'">Data User</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'/data/users'" v-if="$page.props.user.level_id == 1">Data User</jet-dropdown-link>
                                                 <jet-dropdown-link :href="'/data/members'">Data Member</jet-dropdown-link>
                                                 <jet-dropdown-link :href="'/data/juklak'">Data Juklak</jet-dropdown-link>
                                             </div>
@@ -241,7 +241,7 @@
                                 Data
                             </div>
 
-                            <jet-responsive-nav-link :href="route('data.users')" :active="route().current('data.users')">
+                            <jet-responsive-nav-link :href="route('data.users')" :active="route().current('data.users')" v-if="$page.props.user.level_id == 1">
                                 Data Users
                             </jet-responsive-nav-link>
 

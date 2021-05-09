@@ -17,6 +17,7 @@
                                     placeholder="Tanggal Awal"
                                     v-model="filter.dateStart" 
                                     dateFormat="yy-mm-dd"
+                                    :maxDate="filter.dateEnd"
                                     :input-class="'focus:ring-indigo-200 text-base focus:border-indigo-300 flex-1 rounded-l-md block w-full sm:text-sm border-gray-300'" 
                                     :input-style="'border-radius: 0.375rem 0px 0px 0.375rem;'"/>
                                 <span 
@@ -27,6 +28,7 @@
                                     placeholder="Tanggal Akhir"
                                     v-model="filter.dateEnd" 
                                     dateFormat="yy-mm-dd"
+                                    :minDate="filter.dateStart"
                                     :input-class="'focus:ring-indigo-200 text-base focus:border-indigo-300 flex-1 rounded-l-md block w-full sm:text-sm border-gray-300'" 
                                     :input-style="'border-radius: 0rem 0.375rem 0.375rem 0rem;'"/>
                             </div>
@@ -38,6 +40,20 @@
                             <jet-button class="text-sm" @click.enter="filterData(filter)">
                                 Cari
                             </jet-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" v-if="isSubmited">
+                <div class="px-8 pb-8 pt-6 bg-white overflow-auto shadow sm:rounded-lg mb-8">
+                    <span>Statistik</span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <canvas ref="canvas"></canvas>
+                        </div>
+                        <div>
+                            <canvas ref="canvas2"></canvas>
                         </div>
                     </div>
                 </div>
@@ -109,22 +125,49 @@
     import JetButton from '@/Jetstream/Button'
     import Badge from 'primevue/badge'
     import Calendar from 'primevue/calendar'
+    import Chart from 'chart.js'
 
     export default {
+
         components: {
             AppLayout,
             JetButton,
             Badge,
-            Calendar
+            Calendar,
+            Chart
         },
 
         data() {
             return {
+                isSubmited: false,
                 statistik: [],
                 filter: {
                     dateStart: '',
                     dateEnd: '',
                     errors: {},
+                },
+                stackedData: {
+                    labels: [],
+                    datasets: []
+                },
+                stackedOptions: {
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    responsive: true,
+                    scales: {
+                        xAxes: [{
+                            stacked: true,
+                        }],
+                        yAxes: [{
+                            stacked: true
+                        }]
+                    }
+                },
+                lineData: {
+                    labels: [],
+                    datasets: [],
                 }
             }
         },
@@ -145,6 +188,7 @@
 
             filterData(filter) {
                 this.filter.errors = {};
+                this.isSubmited = true;
                 let data = new FormData;
 
                 data.append('dateStart', filter.dateStart);
@@ -155,6 +199,37 @@
                         axios.post('http://localhost:8000/api/data/case-statistik/filter', data)
                             .then(result => this.statistik = result.data)
                             .catch(err => this.filter.errors = err.response.data.errors)
+
+                        axios.post('http://localhost:8000/api/data/case-statistik/chart', data)
+                            .then(result => {
+                                this.stackedData.labels = result.data.periods;
+                                this.stackedData.datasets = result.data.datasets;
+
+                                this.lineData.labels = result.data.line.labels;
+                                this.lineData.datasets = result.data.line.datasets;
+
+                                const ctx = this.$refs.canvas.getContext('2d');
+                                const myChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: this.stackedData,
+                                    options: this.stackedOptions
+                                });
+
+                                const ctx2 = this.$refs.canvas2.getContext('2d');
+                                const lineChart = new Chart(ctx2, {
+                                    type: 'line',
+                                    data: {
+                                        labels: this.lineData.labels,
+                                        datasets: [{
+                                            label: 'Total Case',
+                                            data: this.lineData.datasets.data,
+                                            fill: false,
+                                            borderColor: 'rgb(75, 192, 192)',
+                                            tension: 0.1
+                                        }]
+                                    }
+                                });
+                            }).catch(err => console.log(err))
                     }).catch(err => console.log(err))
             },
 
