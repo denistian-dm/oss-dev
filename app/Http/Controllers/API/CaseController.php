@@ -23,11 +23,16 @@ class CaseController extends Controller
      */
     public function index()
     {
+        $tz = geoip()->getLocation('111.68.29.30')->timezone;
+        $from = Carbon::now()->timezone($tz)->startOfMonth()->setTimezone('UTC');
+        $to = Carbon::now()->timezone($tz)->endOfMonth()->setTimezone('UTC');
+
         $cases = _Case::with('member:id,name,id_member')
                         ->with('user:id,name')
                         ->with('juklak:id,name')
                         ->with('category:id,name')
                         ->with('case_status:id,name')
+                        ->whereBetween('created_at', [$from, $to])
                         ->get();
 
         return response()->json([

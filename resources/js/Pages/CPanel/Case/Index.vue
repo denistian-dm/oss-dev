@@ -86,7 +86,38 @@
 
                 <!-- datatables -->
                 <div class="bg-white overflow-auto shadow-xl sm:rounded-lg">
-                    <data-table :value="dataCase.data" :paginator="true" :rows="50" ref="dt">
+                    <div class="p-datatable p-component p-datatable-responsive-stack" v-if="!isLoadDataCompleted">
+                        <div class="p-datatable-wrapper">
+                            <table class="p-datatable-table" role="table">
+                                <thead class="p-datatable-thead">
+                                    <tr role="row">
+                                        <th role="cell">No</th>
+                                        <th role="cell">Reference</th>
+                                        <th role="cell">ID Member</th>
+                                        <th role="cell">CS</th>
+                                        <th role="cell">Case</th>
+                                        <th role="cell">Kategori</th>
+                                        <th role="cell">Status</th>
+                                        <th role="cell">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="p-datatable-tbody">
+                                    <tr role="row" v-for="n in 5" :key="n">
+                                        <td role="cell"><skeleton borderRadius="0.375rem" /></td>
+                                        <td role="cell"><skeleton borderRadius="0.375rem" /></td>
+                                        <td role="cell"><skeleton borderRadius="0.375rem" /></td>
+                                        <td role="cell"><skeleton borderRadius="0.375rem" /></td>
+                                        <td role="cell"><skeleton borderRadius="0.375rem" /></td>
+                                        <td role="cell"><skeleton borderRadius="0.375rem" /></td>
+                                        <td role="cell"><skeleton borderRadius="0.375rem" /></td>
+                                        <td role="cell"><skeleton borderRadius="0.375rem" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <data-table :value="dataCase.data" :paginator="true" :rows="50" ref="dt" v-if="isLoadDataCompleted">
                         <template #header>
                             <div style="text-align: left">
                                 <jet-button icon="pi pi-external-link" label="Export" @click="downloadAsExcel()">Export Excel</jet-button>
@@ -190,6 +221,7 @@
     import Card from 'primevue/card'
     import ProgressSpinner from 'primevue/progressspinner'
     import Calendar from 'primevue/calendar'
+    import Skeleton from 'primevue/skeleton'
     import XLSX from 'xlsx'
     import { saveAs } from 'file-saver'
 
@@ -199,6 +231,7 @@
         data() {
             return {
                 loadCompleted: false,
+                isLoadDataCompleted: false,
                 dataCase: [],
                 openViewModal: false,
                 dataCaseDetails: [],
@@ -235,7 +268,8 @@
             Timeline,
             Card,
             ProgressSpinner,
-            Calendar
+            Calendar,
+            Skeleton
         },
 
         methods: {
@@ -286,8 +320,10 @@
                 axios.get('http://localhost:8000/sanctum/csrf-cookie')
                     .then(response => {
                         axios.post('http://localhost:8000/api/data/case/filter', data)
-                            .then(result => this.dataCase = result.data)
-                            .catch(err => this.filter.errors = err.response.data.errors)
+                            .then(result => {
+                                this.dataCase = result.data;
+                                this.isLoadDataCompleted = true;
+                            }).catch(err => this.filter.errors = err.response.data.errors)
                     }).catch(err => console.log(err))
             },
 
@@ -349,8 +385,10 @@
                         this.gettingFromStatistik();
                     } else {
                         axios.get('http://localhost:8000/api/data/case')
-                            .then(result => this.dataCase = result.data)
-                            .catch(err => console.log(err))
+                            .then(result => {
+                                this.dataCase = result.data;
+                                this.isLoadDataCompleted = true;
+                            }).catch(err => console.log(err));
                     }
 
                     axios.get('http://localhost:8000/api/data/case-status')
