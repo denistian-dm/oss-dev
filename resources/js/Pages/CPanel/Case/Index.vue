@@ -381,7 +381,7 @@
         created() {
             axios.get('http://localhost:8000/sanctum/csrf-cookie')
                 .then(response => {
-                    if (this.juklak_category) {
+                    if (this.juklak_category || this.status) {
                         this.gettingFromStatistik();
                     } else {
                         axios.get('http://localhost:8000/api/data/case')

@@ -97,7 +97,7 @@ class CaseDetailController extends Controller
     public function showByIdCase($id)
     {
         $case_detail = CaseDetail::where('case_id', $id)
-                        ->with('user:id,name')
+                        ->with('user:id,name,profile_photo_path')
                         ->with('case_status:id,name')
                         ->with('attachment')
                         ->get();

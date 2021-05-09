@@ -28,7 +28,7 @@ class CaseController extends Controller
         $to = Carbon::now()->timezone($tz)->endOfMonth()->setTimezone('UTC');
 
         $cases = _Case::with('member:id,name,id_member')
-                        ->with('user:id,name')
+                        ->with('user:id,name,profile_photo_path')
                         ->with('juklak:id,name')
                         ->with('category:id,name')
                         ->with('case_status:id,name')
@@ -37,6 +37,28 @@ class CaseController extends Controller
 
         return response()->json([
             'success' => true,
+            'data' => $cases
+        ], 200);
+    }
+
+    public function new_case()
+    {
+        $cases = _Case::with('member:id,name,id_member')
+                        ->with('user:id,name,profile_photo_path')
+                        ->with('juklak:id,name')
+                        ->with('category:id,name')
+                        ->with('case_status:id,name')
+                        ->latest()
+                        ->take(5)
+                        ->get();
+
+        $pending = _Case::where('case_status_id', 1)->get();
+        $urgent = _Case::where('case_status_id', 3)->get();
+
+        return response()->json([
+            'success' => true,
+            'pending' => $pending->count(),
+            'urgent' => $urgent->count(),
             'data' => $cases
         ], 200);
     }
@@ -85,7 +107,7 @@ class CaseController extends Controller
             }
         }
 
-        $cases = $cases->with('member:id,name,id_member')->with('user:id,name')->with('juklak:id,name')->with('category:id,name')->with('case_status:id,name');
+        $cases = $cases->with('member:id,name,id_member')->with('user:id,name,profile_photo_path')->with('juklak:id,name')->with('category:id,name')->with('case_status:id,name');
         $cases = $cases->get();
 
         return response()->json([

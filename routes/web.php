@@ -66,8 +66,16 @@ Route::middleware('auth:sanctum')->group(function () {
                 'dateEnd' => $request->data['dateEnd'],
             ]);
         } else {
-            return Inertia::render('CPanel/Case/Index');
+            if (isset($request->data['status'])) {
+                return Inertia::render('CPanel/Case/Index', [
+                    'status' => $request->data['status'],
+                ]);
+            } else {
+                return Inertia::render('CPanel/Case/Index');
+            }
         }
+
+         
     })->name('data.case');
 
     Route::get('case/{id}', function ($id) {

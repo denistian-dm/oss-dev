@@ -59,7 +59,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
-        'status'
+        'status',
     ];
 
     public function getStatusAttribute()
