@@ -22,26 +22,24 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        if (!$this->authorizationCheck()) 
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ]);
+        }
+
         $users = User::with('level:id,name')
                     ->with('division:id,code,name')
                     ->get();
+        
+        $data = [
+            'success' => true,
+            'data' => $users
+        ];
 
-        $me = Auth::user()->tokens->first()->name;
-
-        if ($me == 'admin') {
-            $data = [
-                'success' => true,
-                'data' => $users
-            ];
-    
-            return response()->json($data, 200);
-        }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Unauthorized'
-        ]);
-
+        return response()->json($data, 200);
     }
 
     /**
@@ -54,6 +52,17 @@ class UserController extends Controller
         //
     }
 
+    private function authorizationCheck()
+    {
+        $me = Auth::user()->tokens->first()->name;
+
+        if ($me == 'Admin') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -62,6 +71,14 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$this->authorizationCheck()) 
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ]);
+        }
+
         Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -83,7 +100,7 @@ class UserController extends Controller
 
         $this->createTeam($user);
 
-        $tokenName = $user->division->code.'-'.$user->level->name;
+        $tokenName = $user->level->name;
         $user->createToken($tokenName);
 
         $data = User::where('id', $user->id)
@@ -138,6 +155,14 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if (!$this->authorizationCheck()) 
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ]);
+        }
+
         $user = User::findOrFail($id);
 
         Validator::make($request->all(), [
@@ -157,17 +182,39 @@ class UserController extends Controller
             'level_id' => $request->level
         ]);
 
-        $updated_user = User::where('id', $id)
-                                ->with('level:id,name')
-                                ->with('division:id,code,name')
-                                ->get();
+        $updated_user = User::with('level:id,name')->with('division:id,code,name')->findOrFail($id);
+        $updated_user->tokens->first()->update([
+            'name' => $updated_user->level->name
+        ]);
 
         $data = [
             'success' => true,
-            'data' => $updated_user
+            'data' => $updated_user,
         ];
 
         return response()->json($data, 200);
+    }
+
+    public function reset($id)
+    {
+        if (!$this->authorizationCheck()) 
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ]);
+        }
+
+        $new_pwd = Hash::make('polokoplo');
+
+        $user = User::findOrFail($id);
+        $user->password = $new_pwd;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Success updating password'
+        ]);
     }
 
     /**
@@ -178,6 +225,14 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+        if (!$this->authorizationCheck()) 
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ]);
+        }
+
         $user = User::findOrFail($id);
         $user->delete();
 

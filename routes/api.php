@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->get('/case-category', [CategoryController::cl
 
 Route::middleware('auth:sanctum')->prefix('data')->group(function () {
     Route::resource('/users', UserController::class);
+    Route::get('/users/{id}/reset', [UserController::class, 'reset']);
     Route::resource('/members', MemberController::class);
     Route::resource('/juklak', JuklakController::class);
     Route::get('/juklak/search-by-category/{category_id}', [JuklakController::class, 'findByCategory']);

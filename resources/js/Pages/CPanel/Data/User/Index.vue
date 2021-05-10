@@ -124,7 +124,14 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                                 </svg>
                                             </div>
-                                            <div class="w-4 mr-2 transform hover:text-purple-500 hover:scale-110 cursor-pointer" 
+                                            <div 
+                                                class="w-4 mr-2 transform hover:text-purple-700 hover:scale-110 cursor-pointer"
+                                                v-tooltip.bottom="'Reset Password'"
+                                                @click.enter="reset(user)">
+                                                <i class="pi pi-key"></i>
+                                            </div>
+
+                                            <div class="w-4 mr-2 transform text-red-500 hover:text-red-700 hover:scale-110 cursor-pointer" 
                                                 v-tooltip.bottom="'delete'"
                                                 @click.enter="destroy(user)">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -288,6 +295,34 @@
                                         this.$swal(
                                             'Deleted!',
                                             'Data User Berhasil Dihapus',
+                                            'success'
+                                        );
+                                        this.getData();
+                                    })
+                                    .catch(err => console.log(err))
+                            })
+                            .catch(err => console.log(err))
+                    }
+                })
+            },
+
+            reset(user) {
+                this.$swal({
+                    title: 'Apakah Yakin?',
+                    text: 'Reset Password user '+user.name,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Iya, reset dong'
+                }).then( result => {
+                    if (result.isConfirmed) {
+                        axios.get('http://localhost:8000/sanctum/csrf-cookie')
+                            .then(response => {
+                                axios.get('http://localhost:8000/api/data/users/' + user.id +'/reset')
+                                    .then(result => {
+                                        console.log(result);
+                                        this.$swal(
+                                            'Reset!',
+                                            'Password User Berhasil Direset',
                                             'success'
                                         );
                                         this.getData();
