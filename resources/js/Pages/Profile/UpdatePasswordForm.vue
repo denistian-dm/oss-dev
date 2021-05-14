@@ -58,12 +58,15 @@
             JetLabel,
         },
 
+        props: ['errorBags'],
+
         data() {
             return {
                 form: this.$inertia.form({
                     current_password: '',
                     password: '',
                     password_confirmation: '',
+                    errors: {}
                 }),
             }
         },
@@ -73,7 +76,38 @@
                 this.form.put(route('user-password.update'), {
                     errorBag: 'updatePassword',
                     preserveScroll: true,
-                    onSuccess: () => this.form.reset(),
+                    onSuccess: () => {
+                        Object.size = function(obj) {
+                            var size = 0,key;
+                            for (key in obj) {
+                                if (obj.hasOwnProperty(key)) size++;
+                            }
+                            return size;
+                        };
+
+                        var size = Object.size(this.$page.props.errorBags);
+
+                        if (size > 0) {
+                            this.form.errors = this.$page.props.errorBags.updatePassword
+
+                            if (this.form.errors.password) {
+                                this.form.reset('password', 'password_confirmation')
+                                this.$refs.password.focus()
+                            }
+
+                            if (this.form.errors.current_password) {
+                                this.form.reset('current_password')
+                                this.$refs.current_password.focus()
+                            }
+                        } else {
+                            this.$swal(
+                                'Updated!',
+                                'Sukses Ubah Password',
+                                'success'
+                            );
+                            this.form.reset()
+                        }
+                    },
                     onError: () => {
                         if (this.form.errors.password) {
                             this.form.reset('password', 'password_confirmation')

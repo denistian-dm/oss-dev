@@ -33,6 +33,7 @@ class CaseController extends Controller
                         ->with('category:id,name')
                         ->with('case_status:id,name')
                         ->whereBetween('created_at', [$from, $to])
+                        ->latest()
                         ->get();
 
         return response()->json([

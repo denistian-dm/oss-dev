@@ -62,6 +62,8 @@ class MemberController extends Controller
             'client_id' => $request->client_id
         ]);
 
+        $member = Member::with('client:id,code,name')->findOrFail($member->id);
+
         return response()->json([
             'success' => true,
             'data' => $member
