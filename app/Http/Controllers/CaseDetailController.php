@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\_Case;
+use App\Models\BugTicket;
 use App\Models\CaseDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class CaseDetailController extends Controller
@@ -72,6 +74,27 @@ class CaseDetailController extends Controller
                     'name' => $fileName,
                     'ext' => $file->extension(),
                     'lokasi' => $path
+                ]);
+            }
+        }
+
+        if ($request->status == 4) {
+            $bug_ticket = BugTicket::where('juklak_id', $case->juklak_id)->where('bug_ticket_status_id', 1)->latest()->first();
+
+            if (!$bug_ticket) {
+                $new_bug_ticket = BugTicket::create([
+                    'juklak_id' => $case->juklak_id,
+                    'bug_ticket_status_id' => 1
+                ]);
+
+                DB::table('bug_ticket_case')->insert([
+                    'bug_ticket_id' => $new_bug_ticket->id,
+                    'case_id' => $case->id
+                ]);
+            } else {
+                DB::table('bug_ticket_case')->insert([
+                    'bug_ticket_id' => $bug_ticket->id,
+                    'case_id' => $case->id
                 ]);
             }
         }

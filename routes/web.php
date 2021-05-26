@@ -90,4 +90,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('statistik/case', function () {
         return Inertia::render('CPanel/Statistik/Index');
     })->name('statistik-case');
+
+    Route::get('case-resolution', function () {
+        return Inertia::render('CPanel/Data/BugTickets/Index');
+    })->name('case-resolution');
+
+    Route::get('case-resolution/{id}', function ($id) {
+        return Inertia::render('CPanel/Data/BugTickets/Show', [
+            'id' => $id
+        ]);
+    });
 });

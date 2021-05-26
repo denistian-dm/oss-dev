@@ -36,12 +36,12 @@ class CaseDetail extends Model
 
     public function cases()
     {
-        return $this->belongsTo('App\Models\_Case');
+        return $this->belongsTo(_Case::class, 'case_id');
     }
 
     public function case_status()
     {
-        return $this->belongsTo('App\Models\CaseStatus');
+        return $this->belongsTo(CaseStatus::class);
     }
 
     public function attachment()

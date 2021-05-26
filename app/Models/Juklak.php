@@ -29,4 +29,9 @@ class Juklak extends Model
     {
         return $this->hasMany('App\Models\_Case');
     }
+
+    public function bug_ticket()
+    {
+        return $this->hasMany('App\Models\BugTicket');
+    }
 }

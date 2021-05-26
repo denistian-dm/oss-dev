@@ -86,4 +86,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\CaseDetail');
     }
+
+    public function bug_ticket_detail()
+    {
+        return $this->hasMany('App\Models\BugTicketDetail');
+    }
 }

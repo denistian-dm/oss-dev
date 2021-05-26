@@ -64,6 +64,11 @@ class _Case extends Model
 
     public function case_detail()
     {
-        return $this->hasMany('App\Models\CaseDetail');
+        return $this->hasMany(CaseDetail::class, 'case_id');
+    }
+
+    public function bug_ticket()
+    {
+        return $this->belongsToMany(BugTicket::class, 'bug_ticket_case', 'case_id', 'bug_ticket_id');
     }
 }

@@ -35,6 +35,7 @@
                                             <div>
                                                 <jet-dropdown-link :href="'/case/create'">Buat Laporan Case Baru</jet-dropdown-link>
                                                 <jet-dropdown-link :href="'/case'">Data Case</jet-dropdown-link>
+                                                <jet-dropdown-link :href="'/case-resolution'">Perlu Penyelesaian IT</jet-dropdown-link>
                                             </div>
                                         </template>
                                     </jet-dropdown>
@@ -233,6 +234,10 @@
 
                             <jet-responsive-nav-link :href="route('data.case')" :active="route().current('data.case')">
                                 Data Case
+                            </jet-responsive-nav-link>
+
+                            <jet-responsive-nav-link :href="route('data.case')" :active="route().current('data.case')">
+                                Perlu Penyelesaian IT
                             </jet-responsive-nav-link>
 
                             <div class="border-t border-gray-200"></div>

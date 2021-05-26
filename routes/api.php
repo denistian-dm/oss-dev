@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\API\BugTicketController;
+use App\Http\Controllers\API\BugTicketDetailController;
+use App\Http\Controllers\API\BugTicketStatusController;
 use App\Http\Controllers\API\CaseController as CaseController;
 use App\Http\Controllers\API\CaseStatusController;
 use App\Http\Controllers\API\ClientController;
@@ -50,4 +53,8 @@ Route::middleware('auth:sanctum')->prefix('data')->group(function () {
     Route::resource('/case-details', CaseDetailController::class);
     Route::get('case-details/{id}/show-by-id-case', [CaseDetailController::class, 'showByIdCase']);
     Route::resource('/case-status', CaseStatusController::class);
+    Route::resource('/case-resolution', BugTicketController::class);
+    Route::post('/case-resolution/filter', [BugTicketController::class, 'filter']);
+    Route::resource('/case-resolution-status', BugTicketStatusController::class);
+    Route::resource('/bug-ticket-details', BugTicketDetailController::class);
 });
